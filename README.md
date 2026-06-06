@@ -16,7 +16,7 @@ A robust machine learning pipeline for reconstructing missing Implied Volatility
 Ensure `dataset.csv` is in the same directory, then run:
 
 ```bash
-python run_pipeline35_optimal.py
+python run_pipeline.py
 ```
 Output: `submission_pipeline35.csv`
 
