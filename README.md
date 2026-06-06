@@ -1,28 +1,25 @@
 # Volatility Surface Pipeline
 
-A robust data pipeline for reconstructing missing Implied Volatility (IV) in options data. It leverages a two-phase approach: cross-strike spatial imputation via Akima 1D interpolation, followed by a multi-scale rolling Principal Component Analysis (PCA) ensemble for temporal smoothing and gap-filling.
+A robust machine learning pipeline for reconstructing missing Implied Volatility (IV) in options data.
 
 ## Overview
-This repository contains the optimal configuration (Pipeline 35) for IV reconstruction, which has proven to yield the best results across k-fold cross-validation and parameter sweeps.
+**Pipeline 35** is the optimal configuration for IV reconstruction, utilizing a two-phase approach (Spatial and Temporal) to achieve minimal error.
 
-### Key Features
-- **Spatial Imputation (Cross-Strike)**: Utilizes `Akima1DInterpolator` to preserve the natural volatility smile across strikes, with linear extrapolation for boundary conditions.
-- **Temporal Imputation (Multi-Scale Rolling PCA)**: Employs a rolling PCA with a Gaussian weighting window across an ensemble of 5 window sizes `[90, 105, 120, 135, 150]`.
-- **Optimal Parameters**: Uses an `alpha` momentum of `0.7` and `8` iterations per window to allow PCA to rapidly inject structural corrections for consecutively missing data.
-- **Signal Smoothing**: Applies a Savitzky-Golay filter to remove localized jitter.
+### Pipeline Architecture
+1. **Data Preprocessing**: Parses option tickers and formats data for time-series analysis.
+2. **Spatial Imputation (Cross-Strike)**: Uses `Akima1DInterpolator` to preserve the natural volatility smile, with linear extrapolation for boundaries.
+3. **Temporal Imputation (Multi-Scale Rolling PCA)**: Employs a rolling PCA ensemble (windows: `[90, 105, 120, 135, 150]`) with Gaussian weighting. Tuned with `alpha=0.7` and `8` iterations for optimal structural gap-filling.
+4. **Signal Smoothing**: Applies a Savitzky-Golay filter to remove noise, softly blended with PCA predictions.
+5. **Validation**: Enforces strict positive IV bounds (minimum `0.001`) with forward/backward fill failsafes.
 
 ## Usage
-The core logic resides in `run_pipeline35_optimal.py`. It requires a `dataset.csv` with options IV data over time.
+Ensure `dataset.csv` is in the same directory, then run:
 
 ```bash
 python run_pipeline35_optimal.py
 ```
-
-This will output `submission_pipeline35.csv` containing the final imputed values.
+Output: `submission_pipeline35.csv`
 
 ## Requirements
 - Python 3.8+
-- `pandas`
-- `numpy`
-- `scipy`
-- `scikit-learn`
+- `pandas`, `numpy`, `scipy`, `scikit-learn`
